@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 #define LED 29
 
 void led_on(char* onoff)
 {
-	wirintPiSetup();
+	wiringPiSetup();
 
 	pinMode(LED, OUTPUT);
 
@@ -17,6 +18,7 @@ void led_on(char* onoff)
 	}
 	else
 	{
-		digitalWrite(LED, LOW);
+		digitalWrite(LED, HIGH);
+		//digitalWrite(LED, LOW);
 	}
 }

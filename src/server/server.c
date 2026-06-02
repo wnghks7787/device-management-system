@@ -12,17 +12,29 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <fcntl.h>
-
-//#include "devcontrol.h"
+#include <pthread.h>
+#include <dlfcn.h>
 
 #define BACKLOG 10
 #define MAXDATASIZE 100
-/*
+
 void* led_thread(void* arg)
 {
-	led_on((char*)arg);
+	void *handle;
+	void (*fptr)(char*);
+
+	handle = dlopen("../lib/libled.so", RTLD_LAZY);
+	if(!handle)
+	{
+		perror("dlopen");
+		exit(1);
+	}
+	fptr = dlsym(handle, "led_on");
+	fptr((char*)arg);
+
+	dlclose(handle);
 }
-*/
+
 void makedaemon()
 {
 	struct sigaction sa;
@@ -142,12 +154,12 @@ int main()
 		}
 		buf[numbytes] = '\0';
 
-		if(!(strcmp(buf, "10")))
+		if(!(strcmp(buf, "11")))
 		{
-	//		pthread_create(&led_tid, NULL, led_thread, buf);
+			pthread_create(&led_tid, NULL, led_thread, buf);
 			printf("test");
 		}
-		//pthread_join(led_tid, (void**)NULL);
+		pthread_join(led_tid, (void**)NULL);
 	}
 	return 0;
 }

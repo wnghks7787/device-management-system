@@ -15,7 +15,7 @@ all: $(TARGET)
 
 $(BIN_DIR)/server: $(OBJ_SERVER)
 	mkdir -p $(BIN_DIR)
-	$(CC_SERVER) -o $@ $< $(LDLIBS)
+	$(CC_SERVER) -o $@ $< $(LDLIBS) -ldl
 
 $(BIN_DIR)/client: $(OBJ_CLIENT)
 	mkdir -p $(BIN_DIR)
@@ -27,6 +27,10 @@ $(OBJ_SERVER):
 $(OBJ_CLIENT):
 	make -C src/client
 
+send:
+	tar -cvzf server.tar.gz bin/ lib/
+	~/scp.sh server.tar.gz
+
 
 clean:
-	rm -rf $(BIN_DIR) $(BUILD_DIR)
+	rm -rf $(BIN_DIR) $(BUILD_DIR) server.tar.gz

@@ -176,10 +176,9 @@ int main()
 		}
 		buf[numbytes] = '\0';
 
-		if(!strcmp(buf, "11"))
+		if(buf[0] == '1')
 		{
 			pthread_create(&led_tid, NULL, led_thread, buf);
-			printf("test\n");
 		}
 		pthread_join(led_tid, (void**)NULL);
 	}

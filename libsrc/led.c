@@ -18,7 +18,6 @@ void led_on(char* onoff)
 	}
 	else
 	{
-		digitalWrite(LED, HIGH);
-		//digitalWrite(LED, LOW);
+		digitalWrite(LED, LOW);
 	}
 }

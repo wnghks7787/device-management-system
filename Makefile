@@ -16,7 +16,7 @@ TARGET = $(BIN_DIR)/server $(BIN_DIR)/client
 
 all: $(TARGET)
 
-$(BIN_DIR)/server: $(OBJ_SERVER) $(LIBS)
+$(BIN_DIR)/server: $(LIBS) $(OBJ_SERVER)
 	mkdir -p $(BIN_DIR)
 	$(CC_SERVER) -o $@ $(OBJ_SERVER) $(LDLIBS) -ldl
 
@@ -39,4 +39,4 @@ send:
 
 
 clean:
-	rm -rf $(BIN_DIR) $(BUILD_DIR) server.tar.gz
+	rm -rf $(BIN_DIR) $(BUILD_DIR) $(LIB_DIR) server.tar.gz

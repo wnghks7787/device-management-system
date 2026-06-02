@@ -14,19 +14,39 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <dlfcn.h>
+#include <limits.h>
 
 #define BACKLOG 10
 #define MAXDATASIZE 100
 
 void* led_thread(void* arg)
 {
+
 	void *handle;
 	void (*fptr)(char*);
+
+	char exe_path[PATH_MAX];
+	char lib_path[PATH_MAX];
+/*
+	ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+	if(len != -1)
+	{
+		exe_path[len] = '\0';
+
+		char *dir = strrchr(exe_path, '/');
+		if(dir)
+		{
+			*dir = '\0';
+		}
+
+		snprintf(lib_path, sizeof(lib_path), "%s/../lib/libled.so", exe_path);
+	}
+	*/
 
 	handle = dlopen("../lib/libled.so", RTLD_LAZY);
 	if(!handle)
 	{
-		perror("dlopen");
+		fprintf(stderr, "%s\n", dlerror());
 		exit(1);
 	}
 	fptr = dlsym(handle, "led_on");
@@ -109,7 +129,7 @@ int main()
 	pthread_t led_tid, buzzer_tid, cds_tid, seg_tid;
 
 	// make process daemon
-	makedaemon();
+	//makedaemon();
 
 	// socket
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -121,8 +141,10 @@ int main()
 	server_addr.sin_port = htons(60000);
 	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	memset(&(server_addr.sin_zero), '\0', 8);
-	
+
 	// bind
+	int optvalue = 1;
+	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optvalue, sizeof(optvalue));
 	if(bind(sockfd, (struct sockaddr*)&server_addr, sizeof(struct sockaddr)) == -1)
 	{
 		perror("bind");
@@ -154,10 +176,10 @@ int main()
 		}
 		buf[numbytes] = '\0';
 
-		if(!(strcmp(buf, "11")))
+		if(!strcmp(buf, "11"))
 		{
 			pthread_create(&led_tid, NULL, led_thread, buf);
-			printf("test");
+			printf("test\n");
 		}
 		pthread_join(led_tid, (void**)NULL);
 	}

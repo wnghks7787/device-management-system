@@ -9,12 +9,14 @@ SRC_CLIENT = $(OBJ_CLIENT:$(BUILD_DIR)/%.o=$(SRC_DIR)/%.c)
 CC_SERVER = aarch64-linux-gnu-gcc
 CC_CLIENT = gcc
 
+LDLIBS = -lpthread
+
 TARGET = server client
 
 all: $(TARGET)
 
 server: $(OBJ_SERVER)
-	$(CC_SERVER) -o $@ $<
+	$(CC_SERVER) -o $@ $< $(LDLIBS)
 
 client: $(OBJ_CLIENT)
 	$(CC_CLIENT) -o $@ $<

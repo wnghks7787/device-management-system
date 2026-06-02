@@ -14,6 +14,7 @@
 #include <fcntl.h>
 
 #define BACKLOG 10
+#define MAXDATASIZE 100
 
 void makedaemon()
 {
@@ -83,8 +84,10 @@ int main()
 	struct sockaddr_in server_addr;
 	struct sockaddr_in client_addr;
 	int sin_size;
+	char buf[MAXDATASIZE];
+	int numbytes;
 
-
+	// make process daemon
 	makedaemon();
 
 	// socket
@@ -112,21 +115,23 @@ int main()
 		exit(1);
 	}
 
+	// accept
+	sin_size = sizeof(struct sockaddr_in);
+	if((new_fd = accept(sockfd, (struct sockaddr*)&client_addr, &sin_size)) == -1)
+	{
+		perror("accept");
+		exit(1);
+	}
+	printf("server: got connection from %s\n", inet_ntoa(client_addr.sin_addr));
+
 	while(1)
 	{
-		sin_size = sizeof(struct sockaddr_in);
-		if((new_fd = accept(sockfd, (struct sockaddr*)&client_addr, &sin_size)) == -1)
+		if((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1)
 		{
-			perror("accept");
-			continue;
-		}
-		printf("server: got connection from %s\n", inet_ntoa(client_addr.sin_addr));
-		if(send(new_fd, "Hello, client!\n", 14, 0) == -1)
-		{
-			perror("send");
-			close(new_fd);
+			perror("recv");
 			exit(1);
 		}
+		buf[numbytes] = '\0';
 	}
 	return 0;
 }

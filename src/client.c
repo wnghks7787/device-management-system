@@ -11,7 +11,19 @@
 #include <netdb.h>
 #include <signal.h>
 
-#define MAXDATASIZE 100
+#define MAXDATASIZE 10
+
+char* toString(int a)
+{
+	char* ret = malloc(sizeof(char) * 3);
+
+	ret[2] = '\0';
+	ret[1] = ((a%10) + '0');
+	a /= 10;
+	ret[0] = (a + '0');
+	
+	return ret;
+}
 
 int selectLED()
 {
@@ -120,13 +132,16 @@ int main(int argc, char* argv[])
 	while(1)
 	{
 		mode_value = selectMode();
-		if((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1)
+		strncpy(buf, toString(mode_value), 3);
+		printf("buf: %s\n", buf);
+
+		if(send(sockfd, buf, 3, 0) == -1)
 		{
-			perror("recv");
+			perror("send");
+			close(sockfd);
 			exit(1);
 		}
-		buf[numbytes] = '\0';
-		printf("Received : %s\n", buf);
+
 	}
 	close(sockfd);
 

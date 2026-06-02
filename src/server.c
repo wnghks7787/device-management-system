@@ -11,6 +11,7 @@
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #define BACKLOG 10
 
@@ -58,6 +59,22 @@ void makedaemon()
 		perror("cd");
 		exit(1);
 	}
+
+	// close all file descriptor
+	if(rl.rlim_max == RLIM_INFINITY)
+	{
+		rl.rlim_max = 1024;
+	}
+
+	for(int i = 0 ; i < rl.rlim_max ; i++)
+	{
+		close(i);
+	}
+
+	// make fd 0, 1, 2 to /dev/null
+	fd0 = open("/dev/null", O_RDWR);
+	fd1 = dup(0);
+	fd2 = dup(0);
 }
 
 int main()

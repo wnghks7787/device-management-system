@@ -1,4 +1,5 @@
 BUILD_DIR = build
+BIN_DIR = bin
 
 OBJ_SERVER = $(BUILD_DIR)/server.o
 OBJ_CLIENT = $(BUILD_DIR)/client.o
@@ -8,14 +9,16 @@ CC_CLIENT = gcc
 
 LDLIBS = -lpthread
 
-TARGET = server client
+TARGET = $(BIN_DIR)/server $(BIN_DIR)/client
 
 all: $(TARGET)
 
-server: $(OBJ_SERVER)
+$(BIN_DIR)/server: $(OBJ_SERVER)
+	mkdir -p $(BIN_DIR)
 	$(CC_SERVER) -o $@ $< $(LDLIBS)
 
-client: $(OBJ_CLIENT)
+$(BIN_DIR)/client: $(OBJ_CLIENT)
+	mkdir -p $(BIN_DIR)
 	$(CC_CLIENT) -o $@ $<
 
 $(OBJ_SERVER):

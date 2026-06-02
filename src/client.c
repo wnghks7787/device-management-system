@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <signal.h>
 
 #define MAXDATASIZE 100
 
@@ -18,6 +19,13 @@ int main(int argc, char* argv[])
 	char buf[MAXDATASIZE];
 	struct hostent *he;
 	struct sockaddr_in server_addr;
+
+	// signal control
+	sigset_t set;
+
+	sigfillset(&set);
+	sigdelset(&set, SIGINT);
+	sigprocmask(SIG_SETMASK, &set, NULL);
 
 	if(argc != 2)
 	{
@@ -48,13 +56,16 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-	if((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1)
+	while(1)
 	{
-		perror("recv");
-		exit(1);
+		if((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1)
+		{
+			perror("recv");
+			exit(1);
+		}
+		buf[numbytes] = '\0';
+		printf("Received : %s\n", buf);
 	}
-	buf[numbytes] = '\0';
-	printf("Received : %s\n", buf);
 	close(sockfd);
 
 	return 0;

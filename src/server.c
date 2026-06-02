@@ -51,18 +51,12 @@ int main()
 			continue;
 		}
 		printf("server: got connection from %s\n", inet_ntoa(client_addr.sin_addr));
-		if(!fork())
+		if(send(new_fd, "Hello, client!\n", 14, 0) == -1)
 		{
-			close(sockfd);
-			if(send(new_fd, "Hello, client!\n", 14, 0) == -1)
-			{
-				perror("send");
-			}
+			perror("send");
 			close(new_fd);
-			exit(0);
+			exit(1);
 		}
-		close(new_fd);
-		while(waitpid(-1, NULL, WNOHANG) > 0);
 	}
 	return 0;
 }

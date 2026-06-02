@@ -8,8 +8,57 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <arpa/inet.h>
+#include <sys/resource.h>
+#include <sys/stat.h>
+#include <signal.h>
 
 #define BACKLOG 10
+
+void makedaemon()
+{
+	struct sigaction sa;
+	struct rlimit rl;
+	int fd0, fd1, fd2;
+	pid_t pid;
+
+	umask(0);
+
+	if(getrlimit(RLIMIT_NOFILE, &rl) < 0)
+	{
+		perror("getlimit");
+		exit(1);
+	}
+
+	if((pid = fork()) < 0)
+	{
+		perror("fork");
+		exit(1);
+	}
+	// close parent process
+	else if(pid != 0)
+	{
+		_exit(EXIT_SUCCESS);
+	}
+
+	setsid();
+
+	// signal handler
+	sa.sa_handler = SIG_IGN;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+
+	if(sigaction(SIGHUP, &sa, NULL) < 0)
+	{
+		perror("sigaction(): Can't ignore SIGHUP");
+		exit(1);
+	}
+
+	if(chdir("/"))
+	{
+		perror("cd");
+		exit(1);
+	}
+}
 
 int main()
 {
@@ -17,6 +66,9 @@ int main()
 	struct sockaddr_in server_addr;
 	struct sockaddr_in client_addr;
 	int sin_size;
+
+
+	makedaemon();
 
 	// socket
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)

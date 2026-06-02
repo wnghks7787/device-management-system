@@ -13,6 +13,64 @@
 
 #define MAXDATASIZE 100
 
+int led_select()
+{
+	int select_mode;
+	printf("\n---------- LED Control Mode ----------\n");
+	printf("Select your mode: \n");
+	printf("1. LED 100%% ON\n");
+	printf("2. LED 70%% ON\n");
+	printf("3. LED 50%% ON\n");
+	printf("4. LED 25%% ON\n");
+	printf("5. LED OFF\n");
+	
+	printf("What do you want to see: ");
+	scanf("%d", &select_mode);
+
+	return select_mode;
+}
+
+int cds_select()
+{
+	int select_mode;
+	printf("\n---------- CDS Control Mode ----------\n");
+	printf("Select your mode: \n");
+	printf("1. Check CDS value\n");
+	printf("2. Control LED with CDS\n");
+
+	printf("What do you want to see: ");
+	scanf("%d", &select_mode);
+
+	return select_mode;
+}
+
+int menuselect()
+{
+	int select_mode;
+	printf("\n========== Device Management System ==========\n");
+	printf("Select your mode: \n");
+	printf("1. LED ON_OFF\n"); // 1X
+	printf("2. Buzzer\n"); // 20
+	printf("3. CDS\n"); // 3X
+	printf("4. 7-Segment\n"); // 40
+
+	printf("What do you want to see: ");
+	scanf("%d", &select_mode);
+
+	select_mode *= 10;
+
+	if(select_mode == 10)
+	{
+		select_mode += led_select();
+	}
+	else if(select_mode == 30)
+	{
+		select_mode += cds_select();
+	}
+
+	return select_mode;
+}
+
 int main(int argc, char* argv[])
 {
 	int sockfd, numbytes;
@@ -20,6 +78,8 @@ int main(int argc, char* argv[])
 	char buf[MAXDATASIZE];
 	struct hostent *he;
 	struct sockaddr_in server_addr;
+
+	int select_mode;
 
 	// signal control
 	sigset_t set;
@@ -59,6 +119,7 @@ int main(int argc, char* argv[])
 
 	while(1)
 	{
+		select_mode = menuselect();
 		if((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1)
 		{
 			perror("recv");

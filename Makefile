@@ -27,5 +27,8 @@ $(OBJ_CLIENT): $(SRC_CLIENT)
 	mkdir -p $(BUILD_DIR)
 	$(CC_CLIENT) -c $< -o $@
 
+send:
+	~/scp.sh server
+
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)

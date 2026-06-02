@@ -1,7 +1,9 @@
 LIB_DIR = ../lib
+BUILD_DIR = ../build
 
-OBJS = led.o
-LIBS = $(OBJS:%.o=$(LIB_DIR)/lib%.so)
+SRCS = led.c
+OBJS = $(SRCS:%.c=$(BUILD_DIR)/%.o)
+LIBS = $(SRCS:%.c=$(LIB_DIR)/lib%.so)
 
 CC = aarch64-linux-gnu-gcc
 CFLAG = -c -ePIC
@@ -11,5 +13,7 @@ $(LIBS): $(OBJS)
 	mkdir -p $(LIB_DIR)
 	$(CC) -shared -o $@ $< $(CFLAG_LIB)
 
-%.o: %.c
-	$(CC) $(CFLAG) $<
+
+$(OBJS): $(SRCS)
+	mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAG) $< -o $@

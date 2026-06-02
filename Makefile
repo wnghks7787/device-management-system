@@ -29,4 +29,4 @@ $(OBJ_CLIENT):
 
 
 clean:
-	rm -rf $(TARGET) $(BUILD_DIR)
+	rm -rf $(BIN_DIR) $(BUILD_DIR)

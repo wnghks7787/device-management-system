@@ -3,21 +3,32 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <softPwm.h>
 
 #define LED 29
 
-void led_on(char* onoff)
+void led_control(char* mode)
 {
-	wiringPiSetup();
+	softPwmCreate(LED, 0, 255);
 
-	pinMode(LED, OUTPUT);
-
-	if(strcmp(onoff, "11") == 0)
+	if(strcmp(mode, "11") == 0)
 	{
-		digitalWrite(LED, HIGH);
+		softPwmWrite(LED, 255);
+	}
+	else if(strcmp(mode, "12") == 0)
+	{
+		softPwmWrite(LED, 191);
+	}
+	else if(strcmp(mode, "13") == 0)
+	{
+		softPwmWrite(LED, 127);
+	}
+	else if(strcmp(mode, "14") == 0)
+	{
+		softPwmWrite(LED, 63);
 	}
 	else
 	{
-		digitalWrite(LED, LOW);
+		softPwmWrite(LED, 0);
 	}
 }

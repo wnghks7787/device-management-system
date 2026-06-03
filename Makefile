@@ -10,7 +10,7 @@ LIBS = $(LIB_DIR)/led.so
 CC_SERVER = aarch64-linux-gnu-gcc
 CC_CLIENT = gcc
 
-LDLIBS = -lpthread
+LDLIBS = -lpthread -lwiringPi -lcrypt
 
 TARGET = $(BIN_DIR)/server $(BIN_DIR)/client
 

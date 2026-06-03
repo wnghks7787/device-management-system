@@ -7,7 +7,7 @@ LIBS = $(SRCS:%.c=$(LIB_DIR)/lib%.so)
 
 CC = aarch64-linux-gnu-gcc
 CFLAG = -c -ePIC
-CFLAG_LIB = -lwiringPi -lcrypt
+CFLAG_LIB = -lpthread -lwiringPi -lcrypt
 
 $(LIBS): $(OBJS)
 	mkdir -p $(LIB_DIR)

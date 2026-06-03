@@ -16,8 +16,15 @@
 #include <dlfcn.h>
 #include <limits.h>
 
+#include <wiringPi.h>
+#include <softPwm.h>
+#include <softTone.h>
+
 #define BACKLOG 10
 #define MAXDATASIZE 100
+
+#define LED 29
+#define BUZZER 28
 
 void* led_thread(void* arg)
 {
@@ -25,31 +32,13 @@ void* led_thread(void* arg)
 	void *handle;
 	void (*fptr)(char*);
 
-	char exe_path[PATH_MAX];
-	char lib_path[PATH_MAX];
-/*
-	ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
-	if(len != -1)
-	{
-		exe_path[len] = '\0';
-
-		char *dir = strrchr(exe_path, '/');
-		if(dir)
-		{
-			*dir = '\0';
-		}
-
-		snprintf(lib_path, sizeof(lib_path), "%s/../lib/libled.so", exe_path);
-	}
-	*/
-
 	handle = dlopen("../lib/libled.so", RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
 		exit(1);
 	}
-	fptr = dlsym(handle, "led_on");
+	fptr = dlsym(handle, "led_control");
 	fptr((char*)arg);
 
 	dlclose(handle);
@@ -117,6 +106,29 @@ void makedaemon()
 	fd2 = dup(0);
 }
 
+int wpiSetup()
+{
+	if(wiringPiSetup() == -1)	
+	{
+		perror("wiringPiSetup");
+		return -1;
+	}
+
+	if(softPwmCreate(LED, 0, 255) == -1)
+	{
+		perror("softPwmCreate");
+		return -1;
+	}
+
+	if(softToneCreate(BUZZER) == -1)
+	{
+		perror("softToneCreate");
+		return -1;
+	}
+
+	return 0;
+}
+
 int main()
 {
 	int sockfd, new_fd;
@@ -125,8 +137,15 @@ int main()
 	int sin_size;
 	char buf[MAXDATASIZE];
 	int numbytes;
-	
+
 	pthread_t led_tid, buzzer_tid, cds_tid, seg_tid;
+
+	// wiringPi setup
+	if(wpiSetup() == -1)
+	{
+		perror("wpiSetup");
+		exit(1);
+	}
 
 	// make process daemon
 	//makedaemon();

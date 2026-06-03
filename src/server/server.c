@@ -215,10 +215,12 @@ int main()
 		if(buf[0] == '1')
 		{
 			pthread_create(&led_tid, NULL, led_thread, buf);
+			pthread_detach(led_tid);
 		}
 		if(buf[0] == '2')
 		{
 			pthread_create(&buzzer_tid, NULL, buzzer_thread, NULL);
+			pthread_detach(buzzer_tid);
 		}
 		pthread_join(led_tid, (void**)NULL);
 	}

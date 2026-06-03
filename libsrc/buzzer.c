@@ -24,7 +24,7 @@
 #define NOTE_E4 330
 #define NOTE_F4 349
 #define NOTE_Fs4 370
-#define NOTE G4 391
+#define NOTE_G4 391
 #define NOTE_Gs4 415
 #define NOTE_A4 440
 #define NOTE_As4 466
@@ -47,7 +47,7 @@ int musicPlay()
 	int melody[] = {
 		NOTE_G4, NOTE_G4, NOTE_A4, NOTE_A4, NOTE_G4, NOTE_G4, NOTE_E4, NOTE_E4, \
 		NOTE_G4, NOTE_G4, NOTE_E4, NOTE_E4, NOTE_D4, NOTE_D4, NOTE_D4, 0, \
-		NOTE_G4, NOTE_64, NOTE_A4, NOTE_A4, NOTE_G4, NOTE_G4, NOTE_E4, NOTE_E4, \
+		NOTE_G4, NOTE_G4, NOTE_A4, NOTE_A4, NOTE_G4, NOTE_G4, NOTE_E4, NOTE_E4, \
 		NOTE_G4, NOTE_E4, NOTE_D4, NOTE_E4, NOTE_C4, NOTE_C4, NOTE_C4, 0
 	};
 
@@ -56,4 +56,11 @@ int musicPlay()
 		softToneWrite(BUZZER, melody[i]);
 		delay(280);
 	}
+
+	return 0;
+}
+
+void buzzer_control()
+{
+	musicPlay();
 }

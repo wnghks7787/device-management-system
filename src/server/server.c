@@ -26,6 +26,23 @@
 #define LED 29
 #define BUZZER 28
 
+void* buzzer_thread(void* arg)
+{
+	void *handle;
+	void (*fptr)(char*);
+
+	handle = dlopen("../lib/libbuzzer.so", RTLD_LAZY);
+	if(!handle)
+	{
+		fprintf(stderr, "%s\n", dlerror());
+		exit(1);
+	}
+	fptr = dlsym(handle, "buzzer_control");
+	fptr(arg);
+
+	dlclose(handle);
+}
+
 void* led_thread(void* arg)
 {
 
@@ -198,6 +215,10 @@ int main()
 		if(buf[0] == '1')
 		{
 			pthread_create(&led_tid, NULL, led_thread, buf);
+		}
+		if(buf[0] == '2')
+		{
+			pthread_create(&buzzer_tid, NULL, buzzer_thread, NULL);
 		}
 		pthread_join(led_tid, (void**)NULL);
 	}

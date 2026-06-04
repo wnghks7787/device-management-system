@@ -42,6 +42,20 @@ int selectLED()
 	return mode_val;
 }
 
+int selectBUZZER()
+{
+	int mode_val;
+	printf("\n---------- BUZZER Control Mode ----------\n");
+	printf("Select your mode: \n");
+	printf("1. BUZZER ON\n");
+	printf("2. BUZZER OFF\n");
+	
+	printf("What do you want to see: ");
+	scanf("%d", &mode_val);
+
+	return mode_val;
+}
+
 int selectCDS()
 {
 	int mode_val;
@@ -60,7 +74,7 @@ int selectFND()
 {
 	int mode_val;
 	printf("\n---------- FND Control Mode ----------\n");
-	printf("Select Integer Number: ");
+	printf("Select Integer Number(0~9): ");
 	scanf("%d", &mode_val);
 
 	return mode_val;
@@ -82,17 +96,23 @@ int selectMode()
 
 	mode_val *= 10;
 
-	if(mode_val == 10)
+	switch(mode_val)
 	{
-		mode_val += selectLED();
-	}
-	else if(mode_val == 30)
-	{
-		mode_val += selectCDS();
-	}
-	else if(mode_val == 40)
-	{
-		mode_val += selectFND();
+		case 10:
+			mode_val += selectLED();
+			break;
+		case 20:
+			mode_val += selectBUZZER();
+			break;
+		case 30:
+			mode_val += selectCDS();
+			break;
+		case 40:
+			mode_val += selectFND();
+			break;
+		default:
+			mode_val = 0;
+			break;
 	}
 
 	return mode_val;

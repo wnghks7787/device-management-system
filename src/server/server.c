@@ -1,4 +1,4 @@
-// SERVER
+// SERVER 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -255,16 +255,27 @@ int main()
 		}
 		buf[numbytes] = '\0';
 
+		// led
 		if(buf[0] == '1')
 		{
 			pthread_create(&led_tid, NULL, led_thread, buf);
 			pthread_detach(led_tid);
 		}
+		// buzzer
 		if(buf[0] == '2')
 		{
-			pthread_create(&buzzer_tid, NULL, buzzer_thread, NULL);
-			pthread_detach(buzzer_tid);
+			if(buf[1] == '1')
+			{
+				pthread_create(&buzzer_tid, NULL, buzzer_thread, NULL);
+				pthread_detach(buzzer_tid);
+			}
+			else if(buf[1] == '2' && (pthread_kill(buzzer_tid, 0)) == 0)
+			{
+				pthread_cancel(buzzer_tid);
+				softToneWrite(BUZZER, 0);
+			}
 		}
+		// cds
 		if(buf[0] == '3')
 		{
 			pthread_create(&cds_tid, NULL, cds_thread, buf);
@@ -285,6 +296,7 @@ int main()
 			
 			send(new_fd, buf, strlen(buf), 0);
 		}
+		// fnd
 		if(buf[0] == '4')
 		{
 			pthread_create(&fnd_tid, NULL, fnd_thread, buf);

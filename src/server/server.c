@@ -337,20 +337,25 @@ int main()
 			exit(1);
 		}
 		buf[numbytes] = '\0';
+		syslog(LOG_INFO, "input: %s", buf);
 
 		// led
 		if(buf[0] == '1')
 		{
+			syslog(LOG_INFO, "led thread start");
 			pthread_create(&led_tid, NULL, led_thread, buf);
 			pthread_detach(led_tid);
+			syslog(LOG_INFO, "led thread detach");
 		}
 		// buzzer
 		if(buf[0] == '2')
 		{
 			if(buf[1] == '1')
 			{
+				syslog(LOG_INFO, "buzzer thread start");
 				pthread_create(&buzzer_tid, NULL, buzzer_thread, NULL);
 				pthread_detach(buzzer_tid);
+				syslog(LOG_INFO, "buzzer thread detach");
 			}
 			else if(buf[1] == '2' && (pthread_kill(buzzer_tid, 0)) == 0)
 			{
@@ -362,37 +367,46 @@ int main()
 		// cds
 		if(buf[0] == '3')
 		{
+			syslog(LOG_INFO, "cds thread start");
 			pthread_create(&cds_tid, NULL, cds_thread, buf);
 			pthread_join(cds_tid, &cds_val);
 			if(*((int*)cds_val) == 1)
 			{
 				strcpy(buf, "BRIGHT");
+				syslog(LOG_INFO, "cds: bright");
 			}
 			else if(*((int*)cds_val) == 2)
 			{
 				strcpy(buf, "DARK");
+				syslog(LOG_INFO, "cds: dark");
 			}
 			else
 			{
 				strcpy(buf, "WRONG");
+				syslog(LOG_WARNING, "wrong cds input");
 			}
 			
 			send(new_fd, buf, strlen(buf), 0);
+			syslog(LOG_INFO, "send cds data");
 		}
 		// fnd
 		if(buf[0] == '4')
 		{
+			syslog(LOG_INFO, "fnd trhead start: inputNUM=%c", buf[1]);
 			pthread_create(&fnd_tid, NULL, fnd_thread, buf);
 			pthread_detach(fnd_tid);
 		}
 		// temperature
 		if(buf[0] == '5')
 		{
+			syslog(LOG_INFO, "temperature thread start");
 			pthread_create(&temp_tid, NULL, temp_thread, &i2c_fd);
 			pthread_join(temp_tid, &temp_val);
+			syslog(LOG_INFO, "temperature thread finish");
 			sprintf(buf, "%d", *((int*)temp_val));
 
 			send(new_fd, buf, strlen(buf), 0);
+			syslog(LOG_INFO, "send temperature data");
 		}
 	}
 

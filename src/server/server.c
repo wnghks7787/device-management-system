@@ -15,6 +15,7 @@
 #include <pthread.h>
 #include <dlfcn.h>
 #include <limits.h>
+#include <libgen.h>
 
 #include <wiringPi.h>
 #include <softPwm.h>
@@ -27,16 +28,45 @@
 #define LED 29
 #define BUZZER 28
 #define CDS 27
-
 #define I2CADDR 0x48
+
+int getLibDir(char* buf, size_t size, const char* lib)
+{
+	char exe_path[PATH_MAX];
+	char lib_path[PATH_MAX];
+
+	ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+
+	if(len != -1)
+	{
+		exe_path[len] = '\0';
+
+		char* dir = dirname(exe_path);
+
+		snprintf(buf, size, "%s/../lib/lib%s.so", dir, lib);
+
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
+}
 
 void* temp_thread(void* arg)
 {
+	char lib_path[PATH_MAX];
+
 	int* ret;
 	void* handle;
 	int* (*fptr)(int*);
 
-	handle = dlopen("../lib/libtemp.so", RTLD_LAZY);
+	if(getLibDir(lib_path, sizeof(lib_path), "temp") == -1)
+	{
+		fprintf(stderr, "lib open error\n");
+		exit(1);
+	}
+	handle = dlopen(lib_path, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
@@ -54,10 +84,18 @@ void* temp_thread(void* arg)
 
 void* fnd_thread(void* arg)
 {
+	char lib_path[PATH_MAX];
+
 	void* handle;
 	void (*fptr)(char*);
 
-	handle = dlopen("../lib/libfnd.so", RTLD_LAZY);
+
+	if(getLibDir(lib_path, sizeof(lib_path), "fnd") == -1)
+	{
+		fprintf(stderr, "lib open error\n");
+		exit(1);
+	}
+	handle = dlopen(lib_path, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
@@ -72,11 +110,18 @@ void* fnd_thread(void* arg)
 
 void* cds_thread(void* arg)
 {
+	char lib_path[PATH_MAX];
+
 	int* ret;
 	void *handle;
 	int* (*fptr)(char*);
 
-	handle = dlopen("../lib/libcds.so", RTLD_LAZY);
+	if(getLibDir(lib_path, sizeof(lib_path), "cds") == -1)
+	{
+		fprintf(stderr, "lib open error\n");
+		exit(1);
+	}
+	handle = dlopen(lib_path, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
@@ -93,10 +138,17 @@ void* cds_thread(void* arg)
 
 void* buzzer_thread(void* arg)
 {
+	char lib_path[PATH_MAX];
+
 	void *handle;
 	void (*fptr)(char*);
 
-	handle = dlopen("../lib/libbuzzer.so", RTLD_LAZY);
+	if(getLibDir(lib_path, sizeof(lib_path), "buzzer") == -1)
+	{
+		fprintf(stderr, "lib open error\n");
+		exit(1);
+	}
+	handle = dlopen(lib_path, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
@@ -110,11 +162,17 @@ void* buzzer_thread(void* arg)
 
 void* led_thread(void* arg)
 {
+	char lib_path[PATH_MAX];
 
 	void *handle;
 	void (*fptr)(char*);
 
-	handle = dlopen("../lib/libled.so", RTLD_LAZY);
+	if(getLibDir(lib_path, sizeof(lib_path), "led") == -1)
+	{
+		fprintf(stderr, "lib open error\n");
+		exit(1);
+	}
+	handle = dlopen(lib_path, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());

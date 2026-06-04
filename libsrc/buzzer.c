@@ -2,7 +2,7 @@
 #include <softTone.h>
 
 #define BUZZER 28
-#define TOTAL 20
+#define TOTAL 32
 
 // melody
 #define NOTE_C3 131

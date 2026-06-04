@@ -36,7 +36,6 @@ void fnd_control(char* mode)
 
 	for(int i = start ; i >= 0 ; i--)
 	{
-		printf("%d\n", i);
 		for(int j = 0 ; j < 4 ; j++)
 		{
 			digitalWrite(gpioins[j], number[i][j]?HIGH:LOW);

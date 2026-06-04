@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 				exit(1);
 			}
 			buf[numbytes] = '\0';
-			printf("current light: %s\n", buf);
+			printf("CURRENT LIGHT STATE: %s\n", buf);
 		}
 	}
 	close(sockfd);

@@ -45,7 +45,7 @@ void* cds_thread(void* arg)
 
 	dlclose(handle);
 
-	pthread_exit((int*)ret);
+	pthread_exit(ret);
 }
 
 void* buzzer_thread(void* arg)
@@ -251,18 +251,21 @@ int main()
 		{
 			pthread_create(&cds_tid, NULL, cds_thread, buf);
 			pthread_join(cds_tid, &cds_val);
-			sprintf(buf, "%d", *((int*)cds_val));
-			int size = 0;
-			for(int i = 0 ; i < 10 ; i++)
+			printf("%d\n", *((int*)cds_val));
+			if(*((int*)cds_val) == 1)
 			{
-				if(buf[i] =='\0')
-				{
-					break;
-				}
-				size++;
+				strcpy(buf, "BRIGHT");
+			}
+			else if(*((int*)cds_val) == 2)
+			{
+				strcpy(buf, "DARK");
+			}
+			else
+			{
+				strcpy(buf, "WRONG");
 			}
 			
-			send(new_fd, buf, size, 0);
+			send(new_fd, buf, strlen(buf), 0);
 		}
 		//pthread_join(led_tid, (void**)NULL);
 	}

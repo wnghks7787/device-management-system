@@ -19,6 +19,7 @@
 #include <wiringPi.h>
 #include <softPwm.h>
 #include <softTone.h>
+#include <wiringPiI2C.h>
 
 #define BACKLOG 10
 #define MAXDATASIZE 100
@@ -26,6 +27,30 @@
 #define LED 29
 #define BUZZER 28
 #define CDS 27
+
+#define I2CADDR 0x48
+
+void* temp_thread(void* arg)
+{
+	int* ret;
+	void* handle;
+	int* (*fptr)(int*);
+
+	handle = dlopen("../lib/libtemp.so", RTLD_LAZY);
+	if(!handle)
+	{
+		fprintf(stderr, "%s\n", dlerror());
+		exit(1);
+	}
+	printf("%d\n",*((int*)arg));
+
+	fptr = dlsym(handle, "temp_control");
+	ret = fptr((int*)arg);
+
+	dlclose(handle);
+
+	pthread_exit(ret);
+}
 
 void* fnd_thread(void* arg)
 {
@@ -163,7 +188,7 @@ void makedaemon()
 	fd2 = dup(0);
 }
 
-int wpiSetup()
+int wpiSetup(int* i2c_fd)
 {
 	if(wiringPiSetup() == -1)	
 	{
@@ -183,6 +208,12 @@ int wpiSetup()
 		return -1;
 	}
 
+	if((*i2c_fd = wiringPiI2CSetup(I2CADDR)) == -1)
+	{
+		perror("I2Csetup");
+		return -1;
+	}
+
 	pinMode(CDS, INPUT);
 
 	return 0;
@@ -197,15 +228,19 @@ int main()
 	char buf[MAXDATASIZE];
 	int numbytes;
 	void* cds_val;
+	void* temp_val;
 
-	pthread_t led_tid, buzzer_tid, cds_tid, fnd_tid;
+	int i2c_fd;
+
+	pthread_t led_tid, buzzer_tid, cds_tid, fnd_tid, temp_tid;
 
 	// wiringPi setup
-	if(wpiSetup() == -1)
+	if(wpiSetup(&i2c_fd) == -1)
 	{
 		perror("wpiSetup");
 		exit(1);
 	}
+	printf("%d\n", i2c_fd);
 
 	// make process daemon
 	//makedaemon();
@@ -302,6 +337,17 @@ int main()
 		{
 			pthread_create(&fnd_tid, NULL, fnd_thread, buf);
 			pthread_detach(fnd_tid);
+		}
+		// temperature
+		if(buf[0] == '5')
+		{
+			printf("1. debug\n");
+			pthread_create(&temp_tid, NULL, temp_thread, &i2c_fd);
+			pthread_join(temp_tid, &temp_val);
+			printf("%d\n", *((int*)temp_val));
+			sprintf(buf, "%d", *((int*)temp_val));
+
+			send(new_fd, buf, strlen(buf), 0);
 		}
 		//pthread_join(led_tid, (void**)NULL);
 	}

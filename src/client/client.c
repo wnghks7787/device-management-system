@@ -89,6 +89,7 @@ int selectMode()
 	printf("2. Buzzer\n"); // 20
 	printf("3. CDS\n"); // 3X
 	printf("4. 7-Segment\n"); // 4X
+	printf("5. Temperature\n"); // 50
 	printf("0. EXIT\n"); // 00
 
 	printf("What do you want to see: ");
@@ -109,6 +110,8 @@ int selectMode()
 			break;
 		case 40:
 			mode_val += selectFND();
+			break;
+		case 50:
 			break;
 		default:
 			mode_val = 0;
@@ -193,6 +196,17 @@ int main(int argc, char* argv[])
 			}
 			buf[numbytes] = '\0';
 			printf("CURRENT LIGHT STATE: %s\n", buf);
+		}
+		if(buf[0] == '5')
+		{
+			if((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1)
+			{
+				perror("recv");
+				close(sockfd);
+				exit(1);
+			}
+			buf[numbytes] = '\0';
+			printf("CURRENT TEMPERATURE: %s\n", buf); 
 		}
 	}
 	close(sockfd);

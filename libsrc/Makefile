@@ -1,13 +1,13 @@
 LIB_DIR = ../lib
 BUILD_DIR = ../build
 
-SRCS = led.c buzzer.c cds.c fnd.c
+SRCS = led.c buzzer.c cds.c fnd.c temp.c
 OBJS = $(SRCS:%.c=$(BUILD_DIR)/%.o)
 LIBS = $(SRCS:%.c=$(LIB_DIR)/lib%.so)
 
 CC = aarch64-linux-gnu-gcc
 CFLAG = -c -fPIC
-CFLAG_LIB = -lpthread -lwiringPi -lcrypt
+CFLAG_LIB = -lpthread -lwiringPi -lcrypt -lm
 
 all: $(LIBS)
 

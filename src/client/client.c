@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
 				exit(1);
 			}
 			buf[numbytes] = '\0';
-			printf("CURRENT TEMPERATURE: %s\n", buf); 
+			printf("CURRENT TEMPERATURE: %s C\n", buf); 
 		}
 	}
 	close(sockfd);

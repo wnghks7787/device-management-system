@@ -151,7 +151,8 @@ int main(int argc, char* argv[])
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(60000);
 	server_addr.sin_addr = *((struct in_addr*)he->h_addr);
-	printf("[%s]\n", (char*)inet_ntoa(server_addr.sin_addr));
+	//printf("[%s]\n", (char*)inet_ntoa(server_addr.sin_addr));
+	printf("Connection Success! [\033[32m%s\033[0m]\n", (char*)inet_ntoa(server_addr.sin_addr));
 	memset(&(server_addr.sin_zero), '\0', 8);
 
 	if(connect(sockfd, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) == -1)

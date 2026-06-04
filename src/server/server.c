@@ -16,6 +16,7 @@
 #include <dlfcn.h>
 #include <limits.h>
 #include <libgen.h>
+#include <syslog.h>
 
 #include <wiringPi.h>
 #include <softPwm.h>
@@ -62,14 +63,12 @@ void* temp_thread(void* arg)
 	int* (*fptr)(int);
 
 	sprintf(temp_lib, "%slibtemp.so", lib_path);
-
 	handle = dlopen(temp_lib, RTLD_LAZY);
 	if(!handle)
 	{
-		fprintf(stderr, "%s\n", dlerror());
+		syslog(LOG_ERR, "%s\n", dlerror());
 		exit(1);
 	}
-	printf("%d\n",*((int*)arg));
 
 	fptr = dlsym(handle, "temp_control");
 	ret = *(fptr(*((int*)arg)));
@@ -82,21 +81,14 @@ void* temp_thread(void* arg)
 void* fnd_thread(void* arg)
 {
 	char fnd_lib[PATH_MAX+20];
-
 	void* handle;
 	void (*fptr)(char*);
 
-/*
-	if(getLibDir(lib_path, sizeof(lib_path), "fnd") == -1)
-	{
-		fprintf(stderr, "lib open error\n");
-		exit(1);
-	}*/
 	sprintf(fnd_lib, "%slibfnd.so", lib_path);
 	handle = dlopen(fnd_lib, RTLD_LAZY);
 	if(!handle)
 	{
-		fprintf(stderr, "%s\n", dlerror());
+		syslog(LOG_ERR, "%s\n", dlerror());
 		exit(1);
 	}
 
@@ -108,22 +100,16 @@ void* fnd_thread(void* arg)
 
 void* cds_thread(void* arg)
 {
-	//char lib_path[PATH_MAX];
 	char cds_lib[PATH_MAX+20];
 	int* ret;
 	void *handle;
 	int* (*fptr)(char*);
-/*
-	if(getLibDir(lib_path, sizeof(lib_path), "cds") == -1)
-	{
-		fprintf(stderr, "lib open error\n");
-		exit(1);
-	}*/
+
 	sprintf(cds_lib, "%slibcds.so", lib_path);
 	handle = dlopen(cds_lib, RTLD_LAZY);
 	if(!handle)
 	{
-		fprintf(stderr, "%s\n", dlerror());
+		syslog(LOG_ERR, "%s\n", dlerror());
 		exit(1);
 	}
 
@@ -140,17 +126,12 @@ void* buzzer_thread(void* arg)
 	char buzzer_lib[PATH_MAX+20];
 	void *handle;
 	void (*fptr)(char*);
-/*
-	if(getLibDir(lib_path, sizeof(lib_path), "buzzer") == -1)
-	{
-		fprintf(stderr, "lib open error\n");
-		exit(1);
-	}*/
+
 	sprintf(buzzer_lib, "%slibbuzzer.so", lib_path);
 	handle = dlopen(buzzer_lib, RTLD_LAZY);
 	if(!handle)
 	{
-		fprintf(stderr, "%s\n", dlerror());
+		syslog(LOG_ERR, "%s\n", dlerror());
 		exit(1);
 	}
 	fptr = dlsym(handle, "buzzer_control");
@@ -165,17 +146,11 @@ void* led_thread(void* arg)
 	void *handle;
 	void (*fptr)(char*);
 
-/*
-	if(getLibDir(lib_path, sizeof(lib_path), "led") == -1)
-	{
-		fprintf(stderr, "lib open error\n");
-		exit(1);
-	}*/
 	sprintf(led_lib, "%slibled.so", lib_path);
 	handle = dlopen(led_lib, RTLD_LAZY);
 	if(!handle)
 	{
-		fprintf(stderr, "%s\n", dlerror());
+		syslog(LOG_ERR, "%s\n", dlerror());
 		exit(1);
 	}
 	fptr = dlsym(handle, "led_control");
@@ -246,32 +221,38 @@ void makedaemon()
 	fd2 = dup(0);
 
 	// log open
+	openlog("device_control", LOG_CONS, LOG_DAEMON);
+	if(fd0 != 0 || fd1 != 1 || fd2 != 2) {
+        syslog(LOG_ERR, "unexpected file descriptors %d %d %d", fd0, fd1, fd2);
+		exit(1);
+    }
 
+    syslog(LOG_INFO, "Daemon Process");
 }
 
 int wpiSetup(int* i2c_fd)
 {
 	if(wiringPiSetup() == -1)	
 	{
-		perror("wiringPiSetup");
+		syslog(LOG_ERR, "wiringPiSetup");
 		return -1;
 	}
 
 	if(softPwmCreate(LED, 0, 255) == -1)
 	{
-		perror("softPwmCreate");
+		syslog(LOG_ERR, "softPwmCreate");
 		return -1;
 	}
 
 	if(softToneCreate(BUZZER) == -1)
 	{
-		perror("softToneCreate");
+		syslog(LOG_ERR, "softToneCreate");
 		return -1;
 	}
 
 	if((*i2c_fd = wiringPiI2CSetup(I2CADDR)) == -1)
 	{
-		perror("I2Csetup");
+		syslog(LOG_ERR, "I2Csetup");
 		return -1;
 	}
 
@@ -298,33 +279,24 @@ int main()
 
 	if(getLibDir() == -1)
 	{
-		printf("error\n");
+		syslog(LOG_ERR, "library bind error");
 		exit(1);
 	}
-
-	/*
-	// wiringPi setup
-	if(wpiSetup(&i2c_fd) == -1)
-	{
-		perror("wpiSetup");
-		exit(1);
-	}
-	printf("%d\n", i2c_fd);
-	*/
 
 	// make process daemon
 	makedaemon();
 
+	// setup wiringPi
 	if(wpiSetup(&i2c_fd) == -1)
 	{
-		perror("wpiSetup");
+		syslog(LOG_ERR, "wpiSetup");
 		exit(1);
 	}
 
 	// socket
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
-		perror("socket");
+		syslog(LOG_ERR, "socket");
 		exit(1);
 	}
 	server_addr.sin_family = AF_INET;
@@ -337,14 +309,14 @@ int main()
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optvalue, sizeof(optvalue));
 	if(bind(sockfd, (struct sockaddr*)&server_addr, sizeof(struct sockaddr)) == -1)
 	{
-		perror("bind");
+		syslog(LOG_ERR, "bind");
 		exit(1);
 	}
 
 	// listen
 	if(listen(sockfd, BACKLOG) == -1)
 	{
-		perror("listen");
+		syslog(LOG_ERR, "listen");
 		exit(1);
 	}
 
@@ -352,16 +324,16 @@ int main()
 	sin_size = sizeof(struct sockaddr_in);
 	if((new_fd = accept(sockfd, (struct sockaddr*)&client_addr, &sin_size)) == -1)
 	{
-		perror("accept");
+		syslog(LOG_ERR, "accept");
 		exit(1);
 	}
-	printf("server: got connection from %s\n", inet_ntoa(client_addr.sin_addr));
+	syslog(LOG_INFO, "server: got connection from %s\n", inet_ntoa(client_addr.sin_addr));
 
 	while(1)
 	{
 		if((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1)
 		{
-			perror("recv");
+			syslog(LOG_ERR, "recv");
 			exit(1);
 		}
 		buf[numbytes] = '\0';
@@ -382,7 +354,7 @@ int main()
 			}
 			else if(buf[1] == '2' && (pthread_kill(buzzer_tid, 0)) == 0)
 			{
-				printf("stop\n");
+				syslog(LOG_INFO, "buzzer stop\n");
 				pthread_cancel(buzzer_tid);
 				softToneWrite(BUZZER, 0);
 			}
@@ -392,7 +364,6 @@ int main()
 		{
 			pthread_create(&cds_tid, NULL, cds_thread, buf);
 			pthread_join(cds_tid, &cds_val);
-			printf("%d\n", *((int*)cds_val));
 			if(*((int*)cds_val) == 1)
 			{
 				strcpy(buf, "BRIGHT");
@@ -417,15 +388,14 @@ int main()
 		// temperature
 		if(buf[0] == '5')
 		{
-			printf("1. debug\n");
 			pthread_create(&temp_tid, NULL, temp_thread, &i2c_fd);
 			pthread_join(temp_tid, &temp_val);
-			printf("%d\n", *((int*)temp_val));
 			sprintf(buf, "%d", *((int*)temp_val));
 
 			send(new_fd, buf, strlen(buf), 0);
 		}
-		//pthread_join(led_tid, (void**)NULL);
 	}
+
+	closelog();
 	return 0;
 }

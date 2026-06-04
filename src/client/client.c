@@ -56,6 +56,16 @@ int selectCDS()
 	return mode_val;
 }
 
+int selectFND()
+{
+	int mode_val;
+	printf("\n---------- FND Control Mode ----------\n");
+	printf("Select Integer Number: ");
+	scanf("%d", &mode_val);
+
+	return mode_val;
+}
+
 int selectMode()
 {
 	int mode_val;
@@ -64,7 +74,8 @@ int selectMode()
 	printf("1. LED ON_OFF\n"); // 1X
 	printf("2. Buzzer\n"); // 20
 	printf("3. CDS\n"); // 3X
-	printf("4. 7-Segment\n"); // 40
+	printf("4. 7-Segment\n"); // 4X
+	printf("0. EXIT\n"); // 00
 
 	printf("What do you want to see: ");
 	scanf("%d", &mode_val);
@@ -78,6 +89,10 @@ int selectMode()
 	else if(mode_val == 30)
 	{
 		mode_val += selectCDS();
+	}
+	else if(mode_val == 40)
+	{
+		mode_val += selectFND();
 	}
 
 	return mode_val;
@@ -132,8 +147,14 @@ int main(int argc, char* argv[])
 	while(1)
 	{
 		mode_value = selectMode();
+		if(mode_value == 0)
+		{
+			printf("\n========== BYE!! ==========\n");
+			return 0;
+		}
 		strncpy(buf, toString(mode_value), 3);
 		printf("buf: %s\n", buf);
+
 
 		if(send(sockfd, buf, 3, 0) == -1)
 		{

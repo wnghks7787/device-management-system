@@ -27,6 +27,24 @@
 #define BUZZER 28
 #define CDS 27
 
+void* fnd_thread(void* arg)
+{
+	void* handle;
+	void (*fptr)(char*);
+
+	handle = dlopen("../lib/libfnd.so", RTLD_LAZY);
+	if(!handle)
+	{
+		fprintf(stderr, "%s\n", dlerror());
+		exit(1);
+	}
+
+	fptr = dlsym(handle, "fnd_control");
+	fptr((char*)arg);
+
+	dlclose(handle);
+}
+
 void* cds_thread(void* arg)
 {
 	int* ret;
@@ -180,7 +198,7 @@ int main()
 	int numbytes;
 	void* cds_val;
 
-	pthread_t led_tid, buzzer_tid, cds_tid, seg_tid;
+	pthread_t led_tid, buzzer_tid, cds_tid, fnd_tid;
 
 	// wiringPi setup
 	if(wpiSetup() == -1)
@@ -266,6 +284,11 @@ int main()
 			}
 			
 			send(new_fd, buf, strlen(buf), 0);
+		}
+		if(buf[0] == '4')
+		{
+			pthread_create(&fnd_tid, NULL, fnd_thread, buf);
+			pthread_detach(fnd_tid);
 		}
 		//pthread_join(led_tid, (void**)NULL);
 	}

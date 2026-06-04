@@ -13,22 +13,11 @@
 
 #define MAXDATASIZE 10
 
-char* toString(int a)
-{
-	char* ret = malloc(sizeof(char) * 3);
-
-	ret[2] = '\0';
-	ret[1] = ((a%10) + '0');
-	a /= 10;
-	ret[0] = (a + '0');
-	
-	return ret;
-}
-
+// LED select menu
 int selectLED()
 {
 	int mode_val;
-	printf("\n---------- LED Control Mode ----------\n");
+	printf("\n---------- LED Control Mode \033[37m----------\033[0m\n");
 	printf("Select your mode: \n");
 	printf("1. LED 100%% ON\n");
 	printf("2. LED 70%% ON\n");
@@ -42,10 +31,11 @@ int selectLED()
 	return mode_val;
 }
 
+// Buzzer select menu
 int selectBUZZER()
 {
 	int mode_val;
-	printf("\n---------- BUZZER Control Mode ----------\n");
+	printf("\n---------- BUZZER Control Mode \033[37m----------\033[0m\n");
 	printf("Select your mode: \n");
 	printf("1. BUZZER ON\n");
 	printf("2. BUZZER OFF\n");
@@ -56,10 +46,11 @@ int selectBUZZER()
 	return mode_val;
 }
 
+// CDS select menu
 int selectCDS()
 {
 	int mode_val;
-	printf("\n---------- CDS Control Mode ----------\n");
+	printf("\n---------- CDS Control Mode \033[30m----------\033[0m\n");
 	printf("Select your mode: \n");
 	printf("1. Check CDS value\n");
 	printf("2. Control LED with CDS\n");
@@ -70,25 +61,27 @@ int selectCDS()
 	return mode_val;
 }
 
+// FND select menu
 int selectFND()
 {
 	int mode_val;
-	printf("\n---------- FND Control Mode ----------\n");
+	printf("\n---------- FND Control Mode \033[30m----------\033[0m\n");
 	printf("Select Integer Number(0~9): ");
 	scanf("%d", &mode_val);
 
 	return mode_val;
 }
 
+// mode menu
 int selectMode()
 {
 	int mode_val;
 	printf("\n========== Device Management System ==========\n");
 	printf("Select your mode: \n");
-	printf("1. LED ON_OFF\n"); // 1X
-	printf("2. Buzzer\n"); // 20
-	printf("3. CDS\n"); // 3X
-	printf("4. 7-Segment\n"); // 4X
+	printf("1. LED ON_OFF\n"); // 1X (1 - 5)
+	printf("2. Buzzer\n"); // 2X (1 - 2)
+	printf("3. CDS\n"); // 3X (1 - 2)
+	printf("4. 7-Segment\n"); // 4X (0 - 9)
 	printf("5. Temperature\n"); // 50
 	printf("0. EXIT\n"); // 00
 
@@ -175,9 +168,7 @@ int main(int argc, char* argv[])
 			printf("\n========== BYE!! ==========\n");
 			return 0;
 		}
-		strncpy(buf, toString(mode_value), 3);
-		printf("buf: %s\n", buf);
-
+		sprintf(buf, "%d", mode_value);
 
 		if(send(sockfd, buf, 3, 0) == -1)
 		{
@@ -195,7 +186,7 @@ int main(int argc, char* argv[])
 				exit(1);
 			}
 			buf[numbytes] = '\0';
-			printf("CURRENT LIGHT STATE: %s\n", buf);
+			printf("\033[31mCURRENT LIGHT STATE: %s\033[0m\n", buf);
 		}
 		if(buf[0] == '5')
 		{
@@ -206,7 +197,7 @@ int main(int argc, char* argv[])
 				exit(1);
 			}
 			buf[numbytes] = '\0';
-			printf("CURRENT TEMPERATURE: %s C\n", buf); 
+			printf("\033[31mCURRENT TEMPERATURE: %s C\033[0m\n", buf); 
 		}
 	}
 	close(sockfd);

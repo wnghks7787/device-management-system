@@ -30,10 +30,11 @@
 #define CDS 27
 #define I2CADDR 0x48
 
-int getLibDir(char* buf, size_t size, const char* lib)
+char lib_path[PATH_MAX];
+
+int getLibDir()
 {
 	char exe_path[PATH_MAX];
-	char lib_path[PATH_MAX];
 
 	ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
 
@@ -43,7 +44,7 @@ int getLibDir(char* buf, size_t size, const char* lib)
 
 		char* dir = dirname(exe_path);
 
-		snprintf(buf, size, "%s/../lib/lib%s.so", dir, lib);
+		sprintf(lib_path, "%s/../lib/", dir);
 
 		return 0;
 	}
@@ -55,18 +56,14 @@ int getLibDir(char* buf, size_t size, const char* lib)
 
 void* temp_thread(void* arg)
 {
-	char lib_path[PATH_MAX];
-
-	int* ret;
+	char temp_lib[PATH_MAX+20];
+	int ret;
 	void* handle;
-	int* (*fptr)(int*);
+	int* (*fptr)(int);
 
-	if(getLibDir(lib_path, sizeof(lib_path), "temp") == -1)
-	{
-		fprintf(stderr, "lib open error\n");
-		exit(1);
-	}
-	handle = dlopen(lib_path, RTLD_LAZY);
+	sprintf(temp_lib, "%slibtemp.so", lib_path);
+
+	handle = dlopen(temp_lib, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
@@ -75,27 +72,28 @@ void* temp_thread(void* arg)
 	printf("%d\n",*((int*)arg));
 
 	fptr = dlsym(handle, "temp_control");
-	ret = fptr((int*)arg);
+	ret = *(fptr(*((int*)arg)));
 
 	dlclose(handle);
 
-	pthread_exit(ret);
+	pthread_exit(&ret);
 }
 
 void* fnd_thread(void* arg)
 {
-	char lib_path[PATH_MAX];
+	char fnd_lib[PATH_MAX+20];
 
 	void* handle;
 	void (*fptr)(char*);
 
-
+/*
 	if(getLibDir(lib_path, sizeof(lib_path), "fnd") == -1)
 	{
 		fprintf(stderr, "lib open error\n");
 		exit(1);
-	}
-	handle = dlopen(lib_path, RTLD_LAZY);
+	}*/
+	sprintf(fnd_lib, "%slibfnd.so", lib_path);
+	handle = dlopen(fnd_lib, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
@@ -110,18 +108,19 @@ void* fnd_thread(void* arg)
 
 void* cds_thread(void* arg)
 {
-	char lib_path[PATH_MAX];
-
+	//char lib_path[PATH_MAX];
+	char cds_lib[PATH_MAX+20];
 	int* ret;
 	void *handle;
 	int* (*fptr)(char*);
-
+/*
 	if(getLibDir(lib_path, sizeof(lib_path), "cds") == -1)
 	{
 		fprintf(stderr, "lib open error\n");
 		exit(1);
-	}
-	handle = dlopen(lib_path, RTLD_LAZY);
+	}*/
+	sprintf(cds_lib, "%slibcds.so", lib_path);
+	handle = dlopen(cds_lib, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
@@ -138,17 +137,17 @@ void* cds_thread(void* arg)
 
 void* buzzer_thread(void* arg)
 {
-	char lib_path[PATH_MAX];
-
+	char buzzer_lib[PATH_MAX+20];
 	void *handle;
 	void (*fptr)(char*);
-
+/*
 	if(getLibDir(lib_path, sizeof(lib_path), "buzzer") == -1)
 	{
 		fprintf(stderr, "lib open error\n");
 		exit(1);
-	}
-	handle = dlopen(lib_path, RTLD_LAZY);
+	}*/
+	sprintf(buzzer_lib, "%slibbuzzer.so", lib_path);
+	handle = dlopen(buzzer_lib, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
@@ -162,17 +161,18 @@ void* buzzer_thread(void* arg)
 
 void* led_thread(void* arg)
 {
-	char lib_path[PATH_MAX];
-
+	char led_lib[PATH_MAX+20];
 	void *handle;
 	void (*fptr)(char*);
 
+/*
 	if(getLibDir(lib_path, sizeof(lib_path), "led") == -1)
 	{
 		fprintf(stderr, "lib open error\n");
 		exit(1);
-	}
-	handle = dlopen(lib_path, RTLD_LAZY);
+	}*/
+	sprintf(led_lib, "%slibled.so", lib_path);
+	handle = dlopen(led_lib, RTLD_LAZY);
 	if(!handle)
 	{
 		fprintf(stderr, "%s\n", dlerror());
@@ -244,6 +244,9 @@ void makedaemon()
 	fd0 = open("/dev/null", O_RDWR);
 	fd1 = dup(0);
 	fd2 = dup(0);
+
+	// log open
+
 }
 
 int wpiSetup(int* i2c_fd)
@@ -288,10 +291,18 @@ int main()
 	void* cds_val;
 	void* temp_val;
 
+
 	int i2c_fd;
 
 	pthread_t led_tid, buzzer_tid, cds_tid, fnd_tid, temp_tid;
 
+	if(getLibDir() == -1)
+	{
+		printf("error\n");
+		exit(1);
+	}
+
+	/*
 	// wiringPi setup
 	if(wpiSetup(&i2c_fd) == -1)
 	{
@@ -299,9 +310,16 @@ int main()
 		exit(1);
 	}
 	printf("%d\n", i2c_fd);
+	*/
 
 	// make process daemon
-	//makedaemon();
+	makedaemon();
+
+	if(wpiSetup(&i2c_fd) == -1)
+	{
+		perror("wpiSetup");
+		exit(1);
+	}
 
 	// socket
 	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)

@@ -271,6 +271,7 @@ int main()
 			}
 			else if(buf[1] == '2' && (pthread_kill(buzzer_tid, 0)) == 0)
 			{
+				printf("stop\n");
 				pthread_cancel(buzzer_tid);
 				softToneWrite(BUZZER, 0);
 			}

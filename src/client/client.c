@@ -163,11 +163,7 @@ int main(int argc, char* argv[])
 	while(1)
 	{
 		mode_value = selectMode();
-		if(mode_value == 0)
-		{
-			printf("\n========== BYE!! ==========\n");
-			return 0;
-		}
+
 		sprintf(buf, "%d", mode_value);
 
 		if(send(sockfd, buf, 3, 0) == -1)
@@ -175,6 +171,11 @@ int main(int argc, char* argv[])
 			perror("send");
 			close(sockfd);
 			exit(1);
+		}
+		if(mode_value == 0)
+		{
+			printf("\n========== BYE!! ==========\n\n");
+			break;
 		}
 		
 		if(buf[0] == '3')

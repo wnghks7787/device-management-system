@@ -408,6 +408,18 @@ int main()
 			send(new_fd, buf, strlen(buf), 0);
 			syslog(LOG_INFO, "send temperature data");
 		}
+		if(buf[0] == '0')
+		{
+			syslog(LOG_INFO, "client LOGOUT");
+			close(new_fd);
+
+			if((new_fd = accept(sockfd, (struct sockaddr*)&client_addr, &sin_size)) == -1)
+			{
+				syslog(LOG_ERR, "accept");
+				exit(1);
+			}
+			syslog(LOG_INFO, "server: got connection from %s\n", inet_ntoa(client_addr.sin_addr));
+		}
 	}
 
 	closelog();

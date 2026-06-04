@@ -5,3 +5,4 @@ libsrc/*.o
 bin/*
 
 *.tar.gz
+*.swp

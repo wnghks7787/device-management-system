@@ -251,7 +251,6 @@ int main()
 		{
 			pthread_create(&cds_tid, NULL, cds_thread, buf);
 			pthread_join(cds_tid, &cds_val);
-			// TODO: send value
 			sprintf(buf, "%d", *((int*)cds_val));
 			int size = 0;
 			for(int i = 0 ; i < 10 ; i++)

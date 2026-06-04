@@ -141,7 +141,18 @@ int main(int argc, char* argv[])
 			close(sockfd);
 			exit(1);
 		}
-
+		
+		if(buf[0] == '3')
+		{
+			if((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1)
+			{
+				perror("recv");
+				close(sockfd);
+				exit(1);
+			}
+			buf[numbytes] = '\0';
+			printf("current light: %s\n", buf);
+		}
 	}
 	close(sockfd);
 

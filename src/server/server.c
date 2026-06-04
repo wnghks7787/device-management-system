@@ -25,6 +25,28 @@
 
 #define LED 29
 #define BUZZER 28
+#define CDS 27
+
+void* cds_thread(void* arg)
+{
+	int* ret;
+	void *handle;
+	int* (*fptr)(char*);
+
+	handle = dlopen("../lib/libcds.so", RTLD_LAZY);
+	if(!handle)
+	{
+		fprintf(stderr, "%s\n", dlerror());
+		exit(1);
+	}
+
+	fptr = dlsym(handle, "cds_control");
+	ret = fptr((char*)arg);
+
+	dlclose(handle);
+
+	pthread_exit((int*)ret);
+}
 
 void* buzzer_thread(void* arg)
 {
@@ -143,6 +165,8 @@ int wpiSetup()
 		return -1;
 	}
 
+	pinMode(CDS, INPUT);
+
 	return 0;
 }
 
@@ -154,6 +178,7 @@ int main()
 	int sin_size;
 	char buf[MAXDATASIZE];
 	int numbytes;
+	void* cds_val;
 
 	pthread_t led_tid, buzzer_tid, cds_tid, seg_tid;
 
@@ -222,7 +247,25 @@ int main()
 			pthread_create(&buzzer_tid, NULL, buzzer_thread, NULL);
 			pthread_detach(buzzer_tid);
 		}
-		pthread_join(led_tid, (void**)NULL);
+		if(buf[0] == '3')
+		{
+			pthread_create(&cds_tid, NULL, cds_thread, buf);
+			pthread_join(cds_tid, &cds_val);
+			// TODO: send value
+			sprintf(buf, "%d", *((int*)cds_val));
+			int size = 0;
+			for(int i = 0 ; i < 10 ; i++)
+			{
+				if(buf[i] =='\0')
+				{
+					break;
+				}
+				size++;
+			}
+			
+			send(new_fd, buf, size, 0);
+		}
+		//pthread_join(led_tid, (void**)NULL);
 	}
 	return 0;
 }

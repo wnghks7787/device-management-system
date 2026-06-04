@@ -1,7 +1,7 @@
 LIB_DIR = ../lib
 BUILD_DIR = ../build
 
-SRCS = led.c buzzer.c
+SRCS = led.c buzzer.c cds.c
 OBJS = $(SRCS:%.c=$(BUILD_DIR)/%.o)
 LIBS = $(SRCS:%.c=$(LIB_DIR)/lib%.so)
 

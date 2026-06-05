@@ -1,3 +1,6 @@
+REMOTE_USER = wnghks7787
+REMOTE_HOST = 100.69.64.62
+REMOTE_DIR = /home/wnghks7787/server
 BUILD_DIR = build
 BIN_DIR = bin
 LIB_DIR = lib
@@ -33,10 +36,11 @@ $(OBJ_SERVER):
 $(OBJ_CLIENT):
 	make -C src/client
 
-send:
-	tar -cvzf server.tar.gz bin/ lib/
-	~/scp.sh server.tar.gz
-
+deploy:
+	ssh $(REMOTE_USER)@$(REMOTE_HOST) 'mkdir -p $(REMOTE_DIR)'
+	ssh $(REMOTE_USER)@$(REMOTE_HOST) 'mkdir -p $(REMOTE_DIR)/$(BIN_DIR)'
+	scp $(BIN_DIR)/server $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_DIR)/$(BIN_DIR)
+	scp -r $(LIB_DIR) $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_DIR)
 
 clean:
-	rm -rf $(BIN_DIR) $(BUILD_DIR) $(LIB_DIR) server.tar.gz
+	rm -rf $(BIN_DIR) $(BUILD_DIR) $(LIB_DIR)

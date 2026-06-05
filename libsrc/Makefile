@@ -15,7 +15,6 @@ $(LIB_DIR)/lib%.so: $(BUILD_DIR)/%.o
 	mkdir -p $(LIB_DIR)
 	$(CC) -shared -o $@ $< $(CFLAG_LIB)
 
-
 $(BUILD_DIR)/%.o: %.c
 	mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAG) $< -o $@

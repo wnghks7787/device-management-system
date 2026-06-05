@@ -50,7 +50,7 @@ int selectBUZZER()
 int selectCDS()
 {
 	int mode_val;
-	printf("\n---------- CDS Control Mode \033[30m----------\033[0m\n");
+	printf("\n---------- CDS Control Mode \033[37m----------\033[0m\n");
 	printf("Select your mode: \n");
 	printf("1. Check CDS value\n");
 	printf("2. Control LED with CDS\n");
@@ -65,7 +65,7 @@ int selectCDS()
 int selectFND()
 {
 	int mode_val;
-	printf("\n---------- FND Control Mode \033[30m----------\033[0m\n");
+	printf("\n---------- FND Control Mode \033[37m----------\033[0m\n");
 	printf("Select Integer Number(0~9): ");
 	scanf("%d", &mode_val);
 

@@ -1,4 +1,4 @@
-# Device Management System test
+# Device Management System
 
 <div align=center>
 

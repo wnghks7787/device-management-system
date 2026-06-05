@@ -30,14 +30,15 @@ Makefile을 통해 빌드를 진행합니다. \
 $ make
 ```
 ### 라즈베리파이에 서버 및 라이브러리 전송
-라즈베리파이에 서버 파일과 라이브러리 파일을 전송해주어야 합니다.
-``` bash
-$ make send
+라즈베리파이에 `server` 파일과 라이브러리 파일을 전송해주어야 합니다. \
+전송하기 전, `Makefile`에서 `< >` 사이에 있는 부분을 본인의 서버에 맞춰 수정해 주시면 됩니다.
+``` Makefile
+REMOTE_USER = <SERVER_USER_NAME>
+REMOTE_HOST = <SERVER_HOST_IP>
+REMOTE_DIR = <SERVER_DIR>/server
 ```
-서버파일과 라이브러리 파일이 `tar.gz` 형태로 라즈베리파이에 보내집니다.
-이후 서버에서 압축을 풀어주어야 합니다.
 ``` bash
-$ tar -xzvf server.tar.gz
+$ make deploy
 ```
 
 ## 사용 방법

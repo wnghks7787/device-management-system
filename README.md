@@ -25,11 +25,8 @@
 
 ## 빌드 방법
 Makefile을 통해 빌드를 진행합니다. \
-빌드 순서는 다음과 같습니다.
-``` bash
-$ make
-```
-### 라즈베리파이에 서버 및 라이브러리 전송
+우선 보낼 대상을 Makefile에서 확인해야 합니다.
+### 라즈베리파이 서버 확인
 라즈베리파이에 `server` 파일과 라이브러리 파일을 전송해주어야 합니다. \
 전송하기 전, `Makefile`에서 `< >` 사이에 있는 부분을 본인의 서버에 맞춰 수정해 주시면 됩니다.
 ``` Makefile
@@ -37,10 +34,16 @@ REMOTE_USER = <SERVER_USER_NAME>
 REMOTE_HOST = <SERVER_HOST_IP>
 REMOTE_DIR = <SERVER_DIR>/server
 ```
+### 빌드
 ``` bash
-$ make deploy
+$ make
 ```
-
+한 줄로 빌드와 전송을 모두 마칩니다.
+### 빌드 삭제
+``` bash
+$ make clean
+```
+`build` 폴더와 `bin` 폴더, `lib` 폴더를 삭제합니다. 빌드 시 모두 재생성됩니다.
 ## 사용 방법
 ### 서버
 ``` bash

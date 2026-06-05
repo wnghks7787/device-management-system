@@ -28,23 +28,89 @@ Makefile을 통해 빌드를 진행합니다. \
 빌드 순서는 다음과 같습니다.
 ``` bash
 $ make
-
+```
+### 라즈베리파이에 서버 및 라이브러리 전송
+라즈베리파이에 서버 파일과 라이브러리 파일을 전송해주어야 합니다.
+``` bash
+$ make send
+```
+서버파일과 라이브러리 파일이 `tar.gz` 형태로 라즈베리파이에 보내집니다.
+이후 서버에서 압축을 풀어주어야 합니다.
+``` bash
+$ tar -xzvf server.tar.gz
 ```
 
-
 ## 사용 방법
+### 서버
+``` bash
+$ cd bin
+$ ./server
+```
 
+로그를 보기 위해서는 다음을 입력합니다.
+``` bash
+$ journalctl -f -t device_control
+```
+### 클라이언트
+``` bash
+$ cd bin
+$ ./client <server IP>
+
+
+========== Device Management System ==========
+Select your mode:
+1. LED ON_OFF
+2. Buzzer
+3. CDS
+4. 7-Segment
+5. Temperature
+0. EXIT
+What do you want to see:
+```
 
 ## 기능
 ### LED
-PWM 제어를 통해 LED 밝기 제어(0%, 25%, 50%, 75%, 100%)
+PWM 제어를 통해 LED 밝기를 조절할 수 있습니다.
+
+``` bash
+---------- LED Control Mode ----------
+Select your mode:
+1. LED 100% ON
+2. LED 70% ON
+3. LED 50% ON
+4. LED 25% ON
+5. LED OFF
+What do you want to see:
+```
 ### 부저
-부저를 통해 소리 ON/OFF
+부저를 통해 소리를 켜거나 끌 수 있습니다.
+``` bash
+---------- BUZZER Control Mode ----------
+Select your mode:
+1. BUZZER ON
+2. BUZZER OFF
+What do you want to see:
+```
 ### 조도 센서
-현재 밝기를 측정하여 클라이언트에 반환(밝은지 어두운지 파악) \
-현재 밝기에 따라 LED 제어
+현재 밝은지 어두운지를 파악할 수 있습니다. \
+현재 밝기에 따라 LED를 켜거나 끌 수 있습니다.
+``` bash
+---------- CDS Control Mode ----------
+Select your mode:
+1. Check CDS value
+2. Control LED with CDS
+What do you want to see:
+```
 ### 7 segment(FND)
-사용자가 원하는 1자리 숫자 입력시 입력한 시간동안 매 초 1씩 감소 \
-이후, 0이 되면서 부저에서 3번 소리 재생
+사용자가 원하는 시간을 입력하면(0~9) 매 초 1씩 줄어듭니다. \
+이후, 0이 되면서 부저에서 3번 소리를 재생합니다.
+``` bash
+---------- FND Control Mode ----------
+Select Integer Number(0~9):
+```
 ### AD/DA 컨버터
-현 온도를 확인하여 클라이언트에 반환
+현 온도를 클라이언트에 반환합니다.
+``` bash
+What do you want to see: 5
+CURRENT TEMPERATURE: 23 C
+```

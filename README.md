@@ -77,7 +77,7 @@ PWM 제어를 통해 LED 밝기를 조절할 수 있습니다.
 ---------- LED Control Mode ----------
 Select your mode:
 1. LED 100% ON
-2. LED 70% ON
+2. LED 75% ON
 3. LED 50% ON
 4. LED 25% ON
 5. LED OFF

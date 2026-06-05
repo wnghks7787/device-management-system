@@ -17,7 +17,7 @@ LDLIBS = -lpthread -lwiringPi -lcrypt
 
 TARGET = $(BIN_DIR)/server $(BIN_DIR)/client
 
-all: $(TARGET)
+all: $(TARGET) deploy
 
 $(BIN_DIR)/server: $(LIBS) $(OBJ_SERVER)
 	mkdir -p $(BIN_DIR)

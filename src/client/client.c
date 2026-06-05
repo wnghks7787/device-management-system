@@ -20,7 +20,7 @@ int selectLED()
 	printf("\n---------- LED Control Mode \033[37m----------\033[0m\n");
 	printf("Select your mode: \n");
 	printf("1. LED 100%% ON\n");
-	printf("2. LED 70%% ON\n");
+	printf("2. LED 75%% ON\n");
 	printf("3. LED 50%% ON\n");
 	printf("4. LED 25%% ON\n");
 	printf("5. LED OFF\n");
